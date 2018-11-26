@@ -71,11 +71,11 @@ def training(num_epochs):
         print("Gen Loss on {}: {}".format(epoch, detach(gen_loss)))
 
         if epoch % 10 == 0:
-            images = detach(torch.zeros(256, 256, 3))
+            images = detach(torch.zeros(256, 256))
             for _ in range(5):
                 noise = torch.randn(1, 100)
                 image = detach(gen(noise))
-                image = np.reshape(image.T, (256, 256, 3))
+                image = np.reshape(image.T, (256, 256))
                 images = np.concatenate((image, images), axis=1)
             misc.imsave("testing/results/{}epoch.jpg".format(epoch), images)
 
