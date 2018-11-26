@@ -21,7 +21,7 @@ dis = Discriminator()
 
 loss = nn.BCELoss()     # Loss function
 
-gen_optim = optim.Adam(gen.parameters(), lr=.0001)  # Optimizers
+gen_optim = optim.Adam(gen.parameters(), lr=.00005)  # Optimizers
 dis_optim = optim.SGD(dis.parameters(), lr=.00005)
 
 
