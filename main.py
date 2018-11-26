@@ -47,11 +47,13 @@ def training(num_epochs):
 
         images, labels = real_batch(BATCH_SIZE)
         dis_real = dis(images)
+        dis_real_l = loss(dis_real, labels)
 
         images, fake_labels = fake_batch(gen, BATCH_SIZE)
         dis_fake = dis(images)
+        dis_fake_l = loss(dis_fake, fake_labels)
 
-        dis_loss = loss(dis_real - dis_fake, labels)
+        dis_loss = dis_real_l + dis_fake_l
         dis_loss.backward()
         dis_optim.step()
         print("Dis Loss on {}: {}".format(epoch, detach(dis_loss)))
@@ -62,7 +64,7 @@ def training(num_epochs):
         images, fake_labels = fake_batch(gen, BATCH_SIZE)
         dis_fake = dis(images)
 
-        gen_loss = loss(dis_fake - dis_real, fake_labels)
+        gen_loss = loss(dis_fake, fake_labels)
         gen_loss.backward()
 
         gen_optim.step()
