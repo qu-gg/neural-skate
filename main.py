@@ -75,7 +75,11 @@ def training(num_epochs):
                 image = detach(gen(noise))
                 image = np.reshape(image.T, (256, 256, 3))
                 images = np.concatenate((image, images), axis=1)
-            misc.imsave("results/{}epoch.jpg".format(epoch), images)
+            misc.imsave("testing/results/{}epoch.jpg".format(epoch), images)
+
+            PATH = "testing/checkpoints/"
+            torch.save(gen.state_dict(), PATH + "gen_epoch{}.ckpt".format(epoch))
+            torch.save(dis.state_dict(), PATH + "dis_epoch{}.ckpt".format(epoch))
 
 
 epochs = int(input("Number of epochs: "))
