@@ -6,6 +6,8 @@ from model.generator import *
 parser = argparse.ArgumentParser(description="Hyper-parameters for network.")
 parser.add_argument('-b', '--batch', action='store', type=int, default=32)
 parser.add_argument('-g', '--gpu', action='store', type=bool, default=False)
+parser.add_argument('-e', '--epochs', action='store', type=int, default=100)
+parser.add_argument('-s', '--steps', action='store', type=int, default=20)
 args = parser.parse_args()
 
 BATCH_SIZE = args.batch
@@ -22,10 +24,10 @@ dis = Discriminator()
 loss = nn.BCELoss()     # Loss function
 
 
-beta1 = 0.0
-beta2 = 0.9
-gen_optim = optim.Adam(gen.parameters(), lr=.0001, betas=[beta1, beta2])  # Optimizers
-dis_optim = optim.Adam(dis.parameters(), lr=.0001, betas=[beta1, beta2])
+beta1 = 0.9
+beta2 = 0.999
+gen_optim = optim.Adam(gen.parameters(), lr=.00005, betas=[beta1, beta2])  # Optimizers
+dis_optim = optim.Adam(dis.parameters(), lr=.00005, betas=[beta1, beta2])
 
 
 def detach(to_detach):
@@ -81,11 +83,8 @@ def training(num_epochs, num_steps):
                 image = np.reshape(image, (256, 256))
                 misc.imsave("testing/results/{}epoch.jpg".format(epoch), image)
 
-                PATH = "testing/checkpoints/"
-                torch.save(gen.state_dict(), PATH + "gen_epoch{}.ckpt".format(epoch))
-                torch.save(dis.state_dict(), PATH + "dis_epoch{}.ckpt".format(epoch))
+                torch.save(gen.state_dict(), "testing/gen_epoch.ckpt".format(epoch))
+                torch.save(dis.state_dict(), "testing/dis_epoch.ckpt".format(epoch))
 
 
-epochs = int(input("Number of epochs: "))
-steps = int(input("Steps per epoch: "))
-training(epochs, steps)
+training(args.epochs, args.steps)
