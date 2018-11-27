@@ -61,15 +61,16 @@ def training(num_epochs, num_steps):
             dis_optim.step()
 
             """ Generator Training """
-            gen_optim.zero_grad()
+            for _ in range(10):
+                gen_optim.zero_grad()
 
-            images, fake_labels = fake_batch(gen, BATCH_SIZE)
-            dis_fake = dis(images)
+                images, fake_labels = fake_batch(gen, BATCH_SIZE)
+                dis_fake = dis(images)
 
-            gen_loss = loss(dis_fake, fake_labels)
-            gen_loss.backward()
+                gen_loss = loss(dis_fake, fake_labels)
+                gen_loss.backward()
 
-            gen_optim.step()
+                gen_optim.step()
 
             if step % 10 == 0:
                 print("Dis Loss on {}: {}".format(step, detach(dis_loss)))
