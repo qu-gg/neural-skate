@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as f
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -11,38 +12,41 @@ class Generator(nn.Module):
     """
     def __init__(self):
         super(Generator, self).__init__()
-        self.dense = nn.Linear(100, 25600)
-        self.convo1 = nn.Conv2d(100, 512, kernel_size=5, stride=1, padding=2)
-        self.trans1 = nn.ConvTranspose2d(self.convo1.out_channels, self.convo1.out_channels//2, kernel_size=4, stride=4)
-        self.convo2 = nn.Conv2d(self.trans1.out_channels, self.trans1.out_channels//2, kernel_size=5, stride=1, padding=2)
-        self.trans2 = nn.ConvTranspose2d(self.convo2.out_channels, self.convo2.out_channels//2, kernel_size=4, stride=4)
-        self.convo3 = nn.Conv2d(self.trans2.out_channels, self.trans2.out_channels//2, kernel_size=5, stride=1, padding=2)
-        self.convo4 = nn.Conv2d(self.convo3.out_channels, 1, kernel_size=5, stride=1, padding=2)
+        self.dense = nn.Linear(100, 12100)
+        self.conv_1 = nn.ConvTranspose2d(100, 512, kernel_size=(4, 4), stride=1)
+        self.conv_2 = nn.ConvTranspose2d(512, 256, kernel_size=(4, 4), stride=2)
+        self.conv_3 = nn.ConvTranspose2d(256, 128, kernel_size=(4, 4), stride=2)
+        self.conv_4 = nn.ConvTranspose2d(128, 64, kernel_size=(4, 4), stride=2)
+        self.conv_5 = nn.ConvTranspose2d(64, 1, kernel_size=(6, 6), stride=2)
 
     def forward(self, x):
         x = self.dense(x)
-        x = x.view(-1, 100, 16, 16)
-        x = f.leaky_relu(self.convo1(x))
-        x = f.leaky_relu(self.trans1(x))
-        x = f.leaky_relu(self.convo2(x))
-        x = f.leaky_relu(self.trans2(x))
-        x = f.leaky_relu(self.convo3(x))
-        x = torch.tanh(self.convo4(x))
+        x = x.view(-1, 100, 11, 11)
+        x = f.leaky_relu(self.conv_1(x))
+        x = f.leaky_relu(self.conv_2(x))
+        x = f.leaky_relu(self.conv_3(x))
+        x = f.leaky_relu(self.conv_4(x))
+        x = f.leaky_relu(self.conv_5(x))
+        x = torch.tanh(x)
         return x
 
 
-def fake_batch(gen, size):
+def fake_batch(gen, size, show=False):
     """
     Handles creating a batch of generated images
     :param gen: Generator class
     :param size: Number of images to generate
+    :param show: Flag to display the first generated image
     :return: Torch tensor of generated images
     """
-    images = []
-    for _ in range(size):
-        noise = torch.randn(1, 100)
-        image = gen(noise)
-        images.append(image)
-
+    noise = torch.Tensor(np.random.uniform(-1, 1, (size, 100)))
+    images = gen(noise)
     labels = [np.random.uniform(0.9, 1.0) for _ in range(size)]
-    return torch.cat(images), torch.Tensor(labels)
+
+    if show:
+        image = images[0].view(256, 256)
+        image = image.detach().numpy()
+        plt.imshow(image, cmap='gray')
+        plt.show()
+
+    return images, torch.Tensor(labels)
