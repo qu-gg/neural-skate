@@ -57,6 +57,6 @@ def real_batch(size, show=False):
     classes = [np.random.uniform(0.0, 0.1) for _ in range(size)]
 
     if show:
-        plt.imshow(image_batch[0])
+        plt.imshow(np.reshape(image_batch[0], (256, 256)), cmap='gray')
         plt.show()
     return image_batch, torch.Tensor(classes)
