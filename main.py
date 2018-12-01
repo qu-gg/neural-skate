@@ -71,14 +71,15 @@ def training(num_epochs, num_steps):
             images, labels = real_batch(BATCH_SIZE)
             dis_real = dis(images)
             dis_real_l = loss(dis_real, labels)
+            dis_real_l.backward()
 
             images, fake_labels = fake_batch(gen, BATCH_SIZE)
             dis_fake = dis(images)
             dis_fake_l = loss(dis_fake, fake_labels)
+            dis_fake_l.backward()
 
             dis_loss = dis_real_l + dis_fake_l
             d_loss.append(detach(dis_loss))
-            dis_loss.backward()
             dis_optim.step()
 
             """ Generator Training """

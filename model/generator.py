@@ -13,21 +13,20 @@ class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
         self.dense = nn.Linear(100, 12100)
-        self.conv_1 = nn.ConvTranspose2d(100, 64, kernel_size=(4, 4), stride=1)
-        self.conv_2 = nn.ConvTranspose2d(64, 64, kernel_size=(4, 4), stride=2)
-        self.conv_3 = nn.ConvTranspose2d(64, 64, kernel_size=(4, 4), stride=2)
-        self.conv_4 = nn.ConvTranspose2d(64, 32, kernel_size=(4, 4), stride=2)
-        self.conv_5 = nn.ConvTranspose2d(32, 1, kernel_size=(6, 6), stride=2)
+        self.conv_1 = nn.ConvTranspose2d(100, 64, kernel_size=4, stride=1)
+        self.conv_2 = nn.ConvTranspose2d(64, 64, kernel_size=4, stride=2)
+        self.conv_3 = nn.ConvTranspose2d(64, 64, kernel_size=4, stride=2)
+        self.conv_4 = nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2)
+        self.conv_5 = nn.ConvTranspose2d(32, 1, kernel_size=6, stride=2)
 
     def forward(self, x):
         x = self.dense(x)
         x = x.view(-1, 100, 11, 11)
-        x = f.leaky_relu(self.conv_1(x))
-        x = f.leaky_relu(self.conv_2(x))
-        x = f.leaky_relu(self.conv_3(x))
-        x = f.leaky_relu(self.conv_4(x))
-        x = f.leaky_relu(self.conv_5(x))
-        x = torch.tanh(x)
+        x = f.leaky_relu(self.conv_1(x), negative_slope=.01)
+        x = f.leaky_relu(self.conv_2(x), negative_slope=.01)
+        x = f.leaky_relu(self.conv_3(x), negative_slope=.01)
+        x = f.leaky_relu(self.conv_4(x), negative_slope=.01)
+        x = torch.tanh(self.conv_5(x))
         return x
 
 
@@ -39,7 +38,7 @@ def fake_batch(gen, size, show=False):
     :param show: Flag to display the first generated image
     :return: Torch tensor of generated images
     """
-    noise = torch.Tensor(np.random.uniform(-1, 1, (size, 100)))
+    noise = torch.Tensor(np.random.uniform(-1.0, 1.0, (size, 100)))
     images = gen(noise)
     labels = [np.random.uniform(0.9, 1.0) for _ in range(size)]
 
