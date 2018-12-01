@@ -24,10 +24,10 @@ dis = Discriminator()
 loss = nn.BCELoss()     # Loss function
 
 
-beta1 = 0.9
+beta1 = 0.0
 beta2 = 0.999
-gen_optim = optim.Adam(gen.parameters(), lr=.00005, betas=[beta1, beta2], eps=.0001)  # Optimizers
-dis_optim = optim.Adam(dis.parameters(), lr=.00005, betas=[beta1, beta2], eps=.0001)
+gen_optim = optim.Adam(gen.parameters(), lr=.0002, betas=[beta1, beta2], eps=.0001)  # Optimizers
+dis_optim = optim.Adam(dis.parameters(), lr=.0002, betas=[beta1, beta2], eps=.0001)
 
 
 def graph(num_iter, d_loss, g_loss):
@@ -66,34 +66,36 @@ def training(num_epochs, num_steps):
         print("Epoch {}:".format(epoch))
         for step in range(num_steps):
             """ Discriminator Training """
-            dis_optim.zero_grad()
-
             images, labels = real_batch(BATCH_SIZE)
             dis_real = dis(images)
             dis_real_l = loss(dis_real, labels)
-            dis_real_l.backward()
 
             images, fake_labels = fake_batch(gen, BATCH_SIZE)
             dis_fake = dis(images)
             dis_fake_l = loss(dis_fake, fake_labels)
-            dis_fake_l.backward()
 
             dis_loss = dis_real_l + dis_fake_l
-            d_loss.append(detach(dis_loss))
+
+            dis.zero_grad()
+            dis_loss.backward()
             dis_optim.step()
 
             """ Generator Training """
             for _ in range(10):
-                gen_optim.zero_grad()
-
+                _, labels = real_batch(BATCH_SIZE)
                 images, fake_labels = fake_batch(gen, BATCH_SIZE)
                 dis_fake = dis(images)
 
-                gen_loss = loss(dis_fake, fake_labels)
-                gen_loss.backward()
+                gen_loss = loss(dis_fake, labels)
 
+                gen.zero_grad()
+                dis.zero_grad()
+                gen_loss.backward()
                 gen_optim.step()
+
+            """ Appending losses for plt """
             g_loss.append(detach(gen_loss))
+            d_loss.append(detach(dis_loss))
 
             if step % 10 == 0:
                 print("Dis Loss on {}: {}".format(step, detach(dis_loss)))
