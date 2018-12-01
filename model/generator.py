@@ -13,11 +13,11 @@ class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
         self.dense = nn.Linear(100, 12100)
-        self.conv_1 = nn.ConvTranspose2d(100, 512, kernel_size=(4, 4), stride=1)
-        self.conv_2 = nn.ConvTranspose2d(512, 256, kernel_size=(4, 4), stride=2)
-        self.conv_3 = nn.ConvTranspose2d(256, 128, kernel_size=(4, 4), stride=2)
-        self.conv_4 = nn.ConvTranspose2d(128, 64, kernel_size=(4, 4), stride=2)
-        self.conv_5 = nn.ConvTranspose2d(64, 1, kernel_size=(6, 6), stride=2)
+        self.conv_1 = nn.ConvTranspose2d(100, 64, kernel_size=(4, 4), stride=1)
+        self.conv_2 = nn.ConvTranspose2d(64, 64, kernel_size=(4, 4), stride=2)
+        self.conv_3 = nn.ConvTranspose2d(64, 64, kernel_size=(4, 4), stride=2)
+        self.conv_4 = nn.ConvTranspose2d(64, 32, kernel_size=(4, 4), stride=2)
+        self.conv_5 = nn.ConvTranspose2d(32, 1, kernel_size=(6, 6), stride=2)
 
     def forward(self, x):
         x = self.dense(x)

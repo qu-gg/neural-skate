@@ -14,25 +14,30 @@ class Discriminator(nn.Module):
     """
     def __init__(self):
         super(Discriminator, self).__init__()
-        size = 32
-        self.conv1 = nn.Conv2d(1, size, kernel_size=5, stride=2)
-        self.conv2 = nn.Conv2d(self.conv1.out_channels, self.conv1.out_channels*2, kernel_size=5, stride=2)
-        self.conv3 = nn.Conv2d(self.conv2.out_channels, self.conv2.out_channels*2, kernel_size=5, stride=2)
-        self.conv4 = nn.Conv2d(self.conv3.out_channels, self.conv3.out_channels*2, kernel_size=5, stride=2)
-        self.conv5 = nn.Conv2d(self.conv4.out_channels, self.conv4.out_channels*2, kernel_size=5, stride=2)
-        self.conv6 = nn.Conv2d(self.conv5.out_channels, self.conv5.out_channels, kernel_size=5, stride=2)
+        self.conv1 = nn.Conv2d(1, 64, kernel_size=5, stride=2)
+        self.conv2 = nn.Conv2d(64, 64, kernel_size=5, stride=2)
+        self.conv3 = nn.Conv2d(64, 64, kernel_size=5, stride=2)
+        self.conv4 = nn.Conv2d(64, 64, kernel_size=5, stride=2)
+        self.conv5 = nn.Conv2d(64, 32, kernel_size=5, stride=2)
+        self.conv6 = nn.Conv2d(32, 32, kernel_size=5, stride=1)
         self.drop = nn.Dropout(0.4)
-        self.final = nn.Linear(512, 1)
+        self.final = nn.Linear(32, 1)
 
     def forward(self, x):
         x = f.leaky_relu(self.conv1(x))
+        print(x.shape)
         x = f.leaky_relu(self.conv2(x))
+        print(x.shape)
         x = f.leaky_relu(self.conv3(x))
+        print(x.shape)
         x = f.leaky_relu(self.conv4(x))
+        print(x.shape)
         x = f.leaky_relu(self.conv5(x))
+        print(x.shape)
         x = f.leaky_relu(self.conv6(x))
+        print(x.shape)
         x = self.drop(x)
-        x = x.view(-1, 512)
+        x = x.view(-1, 32)
         x = torch.sigmoid(self.final(x))
         return x
 
@@ -48,7 +53,7 @@ def real_batch(size, show=False):
     image_batch = []
 
     for number in random_batch:
-        image_path = misc.imread("data/grayscale/" + str(number) + ".jpg")
+        image_path = misc.imread("../data/grayscale/" + str(number) + ".jpg")
         image = torch.Tensor(image_path)
         image_batch.append(image)
 

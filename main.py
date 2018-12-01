@@ -26,8 +26,23 @@ loss = nn.BCELoss()     # Loss function
 
 beta1 = 0.9
 beta2 = 0.999
-gen_optim = optim.Adam(gen.parameters(), lr=.00005, betas=[beta1, beta2])  # Optimizers
-dis_optim = optim.Adam(dis.parameters(), lr=.00005, betas=[beta1, beta2])
+gen_optim = optim.Adam(gen.parameters(), lr=.00005, betas=[beta1, beta2], eps=.0001)  # Optimizers
+dis_optim = optim.Adam(dis.parameters(), lr=.00005, betas=[beta1, beta2], eps=.0001)
+
+
+def graph(num_iter, d_loss, g_loss):
+    """
+    Matplotlib function to display the loss per iteration of the model
+    :param iter: num iterations
+    :param loss: list of losses
+    """
+    plt.plot(num_iter, d_loss, '-b', label='Dis Loss')
+    plt.plot(num_iter, g_loss, '-r', label='Gen Loss')
+    plt.xlabel("Number of Iterations")
+    plt.ylim([0.0, 4.0])
+    plt.legend(loc='upper right')
+    plt.savefig("graph_of_loss.png")
+    plt.show()
 
 
 def detach(to_detach):
@@ -44,6 +59,9 @@ def training(num_epochs, num_steps):
     :param steps: Number of training steps per epoch
     :return: None
     """
+    d_loss = []
+    g_loss = []
+
     for epoch in range(num_epochs):
         print("Epoch {}:".format(epoch))
         for step in range(num_steps):
@@ -59,6 +77,7 @@ def training(num_epochs, num_steps):
             dis_fake_l = loss(dis_fake, fake_labels)
 
             dis_loss = dis_real_l + dis_fake_l
+            d_loss.append(detach(dis_loss))
             dis_loss.backward()
             dis_optim.step()
 
@@ -73,6 +92,7 @@ def training(num_epochs, num_steps):
                 gen_loss.backward()
 
                 gen_optim.step()
+            g_loss.append(detach(gen_loss))
 
             if step % 10 == 0:
                 print("Dis Loss on {}: {}".format(step, detach(dis_loss)))
@@ -85,6 +105,7 @@ def training(num_epochs, num_steps):
 
                 torch.save(gen.state_dict(), "testing/gen_epoch.ckpt".format(epoch))
                 torch.save(dis.state_dict(), "testing/dis_epoch.ckpt".format(epoch))
+    graph(range(num_epochs * num_steps), d_loss, g_loss)
 
 
 training(args.epochs, args.steps)
