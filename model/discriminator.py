@@ -6,6 +6,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import misc
 
+img_size = 64
+num_color = 3
+dataset = "64-set"
+
 
 class Discriminator(nn.Module):
     """
@@ -14,12 +18,10 @@ class Discriminator(nn.Module):
     """
     def __init__(self):
         super(Discriminator, self).__init__()
-        self.conv1 = nn.Conv2d(1, 64, kernel_size=5, stride=2)
+        self.conv1 = nn.Conv2d(num_color, 64, kernel_size=5, stride=2)
         self.conv2 = nn.Conv2d(64, 64, kernel_size=5, stride=2)
         self.conv3 = nn.Conv2d(64, 64, kernel_size=5, stride=2)
-        self.conv4 = nn.Conv2d(64, 64, kernel_size=5, stride=2)
-        self.conv5 = nn.Conv2d(64, 32, kernel_size=5, stride=2)
-        self.conv6 = nn.Conv2d(32, 32, kernel_size=5, stride=1)
+        self.conv4 = nn.Conv2d(64, 32, kernel_size=5, stride=2)
         self.drop = nn.Dropout(0.4)
         self.final = nn.Linear(32, 1)
 
@@ -28,8 +30,7 @@ class Discriminator(nn.Module):
         x = f.leaky_relu(self.conv2(x))
         x = f.leaky_relu(self.conv3(x))
         x = f.leaky_relu(self.conv4(x))
-        x = f.leaky_relu(self.conv5(x))
-        x = f.leaky_relu(self.conv6(x))
+        print(x.shape)
         x = self.drop(x)
         x = x.view(-1, 32)
         x = torch.sigmoid(self.final(x))
@@ -47,15 +48,15 @@ def real_batch(size, show=False):
     image_batch = []
 
     for number in random_batch:
-        image_path = misc.imread("data/grayscale/" + str(number) + ".jpg")
+        image_path = misc.imread("../data/{}/{}.jpg".format(dataset, number))
         image = torch.Tensor(image_path)
         image_batch.append(image)
 
     image_batch = torch.cat(image_batch)
-    image_batch = image_batch.view(-1, 1, 256, 256)
+    image_batch = image_batch.view(-1, num_color, img_size, img_size)
     classes = [np.random.uniform(0.0, 0.1) for _ in range(size)]
 
     if show:
-        plt.imshow(np.reshape(image_batch[0], (256, 256)), cmap='gray')
+        plt.imshow(np.reshape(image_batch[0], (img_size, img_size, num_color)))
         plt.show()
     return image_batch, torch.Tensor(classes)
