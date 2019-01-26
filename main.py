@@ -8,6 +8,7 @@ parser.add_argument('-b', '--batch', action='store', type=int, default=32)
 parser.add_argument('-g', '--gpu', action='store', type=bool, default=False)
 parser.add_argument('-e', '--epochs', action='store', type=int, default=100)
 parser.add_argument('-s', '--steps', action='store', type=int, default=20)
+parser.add_argument('--gen_steps', action='store', type=int, default=1)
 args = parser.parse_args()
 
 BATCH_SIZE = args.batch
@@ -80,16 +81,17 @@ def training(num_epochs, num_steps):
             dis_optim.step()
 
             """ Generator Training """
-            _, labels = real_batch(BATCH_SIZE)
-            images, fake_labels = fake_batch(gen, BATCH_SIZE)
-            dis_fake = dis(images)
+            for _ in range(args.gen_steps):
+                _, labels = real_batch(BATCH_SIZE)
+                images, fake_labels = fake_batch(gen, BATCH_SIZE)
+                dis_fake = dis(images)
 
-            gen_loss = loss(dis_fake, labels)
+                gen_loss = loss(dis_fake, labels)
 
-            gen.zero_grad()
-            dis.zero_grad()
-            gen_loss.backward()
-            gen_optim.step()
+                gen.zero_grad()
+                dis.zero_grad()
+                gen_loss.backward()
+                gen_optim.step()
 
             """ Appending losses for plt """
             g_loss.append(detach(gen_loss))
