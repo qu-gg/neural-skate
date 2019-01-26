@@ -8,7 +8,8 @@ parser.add_argument('-b', '--batch', action='store', type=int, default=32)
 parser.add_argument('-g', '--gpu', action='store', type=bool, default=False)
 parser.add_argument('-e', '--epochs', action='store', type=int, default=100)
 parser.add_argument('-s', '--steps', action='store', type=int, default=20)
-parser.add_argument('--gen_steps', action='store', type=int, default=1)
+parser.add_argument('-n', '--gen_steps', action='store', type=int, default=1)
+parser.add_argument('-r', '--results', action='store', type=int, default = 0)
 args = parser.parse_args()
 
 BATCH_SIZE = args.batch
@@ -104,7 +105,7 @@ def training(num_epochs, num_steps):
                 noise = torch.randn(1, 800)
                 image = detach(gen(noise))
                 image = np.reshape(image, (3, 64, 64)).T
-                misc.imsave("testing/results/{}epoch.jpg".format(epoch), image)
+                misc.imsave("testing/results{}/{}epoch.jpg".format(args.results, epoch), image)
 
                 torch.save(gen.state_dict(), "testing/gen_epoch.ckpt".format(epoch))
                 torch.save(dis.state_dict(), "testing/dis_epoch.ckpt".format(epoch))
