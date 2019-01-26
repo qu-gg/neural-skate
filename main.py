@@ -23,7 +23,6 @@ dis = Discriminator()
 
 loss = nn.BCELoss()     # Loss function
 
-
 beta1 = 0.0
 beta2 = 0.999
 gen_optim = optim.Adam(gen.parameters(), lr=.0002, betas=[beta1, beta2], eps=.0001)  # Optimizers
@@ -81,17 +80,16 @@ def training(num_epochs, num_steps):
             dis_optim.step()
 
             """ Generator Training """
-            for _ in range(10):
-                _, labels = real_batch(BATCH_SIZE)
-                images, fake_labels = fake_batch(gen, BATCH_SIZE)
-                dis_fake = dis(images)
+            _, labels = real_batch(BATCH_SIZE)
+            images, fake_labels = fake_batch(gen, BATCH_SIZE)
+            dis_fake = dis(images)
 
-                gen_loss = loss(dis_fake, labels)
+            gen_loss = loss(dis_fake, labels)
 
-                gen.zero_grad()
-                dis.zero_grad()
-                gen_loss.backward()
-                gen_optim.step()
+            gen.zero_grad()
+            dis.zero_grad()
+            gen_loss.backward()
+            gen_optim.step()
 
             """ Appending losses for plt """
             g_loss.append(detach(gen_loss))
@@ -101,9 +99,9 @@ def training(num_epochs, num_steps):
                 print("Dis Loss on {}: {}".format(step, detach(dis_loss)))
                 print("Gen Loss on {}: {}".format(step, detach(gen_loss)))
 
-                noise = torch.randn(1, 100)
+                noise = torch.randn(1, 800)
                 image = detach(gen(noise))
-                image = np.reshape(image, (64, 64))
+                image = np.reshape(image, (64, 64, 3))
                 misc.imsave("testing/results/{}epoch.jpg".format(epoch), image)
 
                 torch.save(gen.state_dict(), "testing/gen_epoch.ckpt".format(epoch))

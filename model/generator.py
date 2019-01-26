@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as f
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -14,18 +13,21 @@ class Generator(nn.Module):
     """
     def __init__(self):
         super(Generator, self).__init__()
-        self.conv_1 = nn.ConvTranspose2d(100, 64, kernel_size=5, stride=1)
-        self.conv_2 = nn.ConvTranspose2d(64, 64, kernel_size=5, stride=2)
-        self.conv_3 = nn.ConvTranspose2d(64, 32, kernel_size=5, stride=2)
-        self.conv_4 = nn.ConvTranspose2d(32, 3, kernel_size=5, stride=2)
+        self.pad = nn.ReflectionPad2d(1)
+        self.upsample = nn.Upsample(scale_factor=2, mode="nearest")
+
+        self.conv1 = nn.Conv2d(50, 64, kernel_size=3, stride=1, padding=0)
+        self.conv2 = nn.Conv2d(64, 64,kernel_size=3, stride=1, padding=0)
+        self.conv3 = nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=0)
+        self.conv4 = nn.Conv2d(32, 3, kernel_size=3, stride=1, padding=0)
 
     def forward(self, x):
-        x = x.view(-1, 100, 1, 1)
-        x = self.conv_1(x)
-        x = f.leaky_relu(self.conv_2(x))
-        x = f.leaky_relu(self.conv_3(x))
-        x = torch.tanh(self.conv_4(x))
-        return x
+        x = x.view(-1, 50, 4, 4)
+        x = self.conv1(self.pad(self.upsample(x)))
+        x = self.conv2(self.pad(self.upsample(x)))
+        x = self.conv3(self.pad(self.upsample(x)))
+        x = self.conv4(self.pad(self.upsample(x)))
+        return torch.tanh(x)
 
 
 def fake_batch(gen, size, show=False):
@@ -36,13 +38,13 @@ def fake_batch(gen, size, show=False):
     :param show: Flag to display the first generated image
     :return: Torch tensor of generated images
     """
-    noise = torch.Tensor(np.random.uniform(-1.0, 1.0, (size, 1600)))
+    noise = torch.Tensor(np.random.uniform(-1.0, 1.0, (size, 800)))
     images = gen(noise)
     labels = [np.random.uniform(0.9, 1.0) for _ in range(size)]
 
     if show:
-        image = images[0].view(img_size, img_size)
-        image = image.detach().numpy()
+        image = images[0].view(3, img_size, img_size)
+        image = image.detach().numpy().T
         plt.imshow(image)
         plt.show()
 

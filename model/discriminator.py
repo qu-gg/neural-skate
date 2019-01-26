@@ -30,7 +30,6 @@ class Discriminator(nn.Module):
         x = f.leaky_relu(self.conv2(x))
         x = f.leaky_relu(self.conv3(x))
         x = f.leaky_relu(self.conv4(x))
-        print(x.shape)
         x = self.drop(x)
         x = x.view(-1, 32)
         x = torch.sigmoid(self.final(x))
@@ -48,7 +47,7 @@ def real_batch(size, show=False):
     image_batch = []
 
     for number in random_batch:
-        image_path = misc.imread("../data/{}/{}.jpg".format(dataset, number))
+        image_path = misc.imread("data/{}/{}.jpg".format(dataset, number))
         image = torch.Tensor(image_path)
         image_batch.append(image)
 
