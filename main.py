@@ -101,7 +101,7 @@ def training(num_epochs, num_steps):
 
                 noise = torch.randn(1, 800)
                 image = detach(gen(noise))
-                image = np.reshape(image, (64, 64, 3))
+                image = np.reshape(image, (3, 64, 64)).T
                 misc.imsave("testing/results/{}epoch.jpg".format(epoch), image)
 
                 torch.save(gen.state_dict(), "testing/gen_epoch.ckpt".format(epoch))
