@@ -18,22 +18,21 @@ class Discriminator(nn.Module):
     """
     def __init__(self):
         super(Discriminator, self).__init__()
-        self.conv1 = nn.Conv2d(num_color, 64, kernel_size=5, stride=2)
-        self.conv2 = nn.Conv2d(64, 64, kernel_size=5, stride=2)
-        self.conv3 = nn.Conv2d(64, 64, kernel_size=5, stride=2)
-        self.conv4 = nn.Conv2d(64, 32, kernel_size=5, stride=2)
-        self.drop = nn.Dropout(0.4)
-        self.final = nn.Linear(32, 1)
+        self.conv1 = nn.Conv2d(num_color, 64, kernel_size=4, stride=2)
+        self.conv2 = nn.Conv2d(64, 64, kernel_size=4, stride=2)
+        self.conv3 = nn.Conv2d(64, 64, kernel_size=4, stride=2)
+        self.conv4 = nn.Conv2d(64, 32, kernel_size=4, stride=2)
+        self.conv5 = nn.Conv2d(32, 16, kernel_size=2, stride=2)
+        self.final = nn.Linear(16, 1)
 
     def forward(self, x):
         x = f.leaky_relu(self.conv1(x))
         x = f.leaky_relu(self.conv2(x))
         x = f.leaky_relu(self.conv3(x))
         x = f.leaky_relu(self.conv4(x))
-        x = self.drop(x)
-        x = x.view(-1, 32)
-        x = torch.sigmoid(self.final(x))
-        return x
+        x = f.leaky_relu(self.conv5(x))
+        x = x.view(-1, 16)
+        return torch.sigmoid(self.final(x))
 
 
 def real_batch(size, show=False):
