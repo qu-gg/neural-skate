@@ -47,8 +47,9 @@ def fake_batch(gen, size, show=False):
     labels = [np.random.uniform(0.9, 1.0) for _ in range(size)]
 
     if show:
-        image = images[0].view(3, img_size, img_size)
-        image = image.detach().numpy().T
+        images = images.detach().numpy()
+        image = np.reshape(images[0], [img_size, img_size, 3])
+        print(image)
         plt.imshow(image)
         plt.show()
 

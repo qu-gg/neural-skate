@@ -52,8 +52,7 @@ def real_batch(size, show=False):
         image_batch.append(image)
 
     numpy_images = np.asarray(image_batch)
-    numpy_images = numpy_images / 255
-    images = torch.from_numpy(numpy_images)
+    images = torch.from_numpy(numpy_images).float().cuda()
 
     labels = [np.random.uniform(0.0, 0.1) for _ in range(size)]
 

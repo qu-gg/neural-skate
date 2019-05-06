@@ -121,7 +121,8 @@ def training(num_steps):
             result = np.ones([img_size, img_size, num_color])
             for i in range(5):
                 image = np.reshape(images[i], [img_size, img_size, num_color])
-                result = np.concatenate((result, image))
+                result = np.concatenate((result, image), axis=1)
+                result = np.concatenate((result, np.ones([img_size, img_size, num_color])), axis=1)
             misc.imsave("testing/results{}/{}step.png".format(args.results, step), result)
 
             # Saving current loss images
