@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as f
+from torchvision.utils import save_image
 import random as r
 import numpy as np
 import matplotlib.pyplot as plt
@@ -46,15 +47,18 @@ def real_batch(size, show=False):
     image_batch = []
 
     for number in random_batch:
-        image_path = misc.imread("data/{}/{}.jpg".format(dataset, number))
-        image = torch.Tensor(image_path)
+        image = misc.imread("data/{}/{}.jpg".format(dataset, number))
+        image = np.reshape(image, [num_color, img_size, img_size])
         image_batch.append(image)
 
-    image_batch = torch.cat(image_batch)
-    image_batch = image_batch.view(-1, num_color, img_size, img_size)
-    classes = [np.random.uniform(0.0, 0.1) for _ in range(size)]
+    numpy_images = np.asarray(image_batch)
+    numpy_images = numpy_images / 255
+    images = torch.from_numpy(numpy_images)
+
+    labels = [np.random.uniform(0.0, 0.1) for _ in range(size)]
 
     if show:
-        plt.imshow(np.reshape(image_batch[0], (img_size, img_size, num_color)))
+        image = np.reshape(numpy_images[0], [img_size, img_size, num_color])
+        plt.imshow(image)
         plt.show()
-    return image_batch, torch.Tensor(classes)
+    return images, torch.Tensor(labels)
