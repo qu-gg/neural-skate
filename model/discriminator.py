@@ -5,7 +5,7 @@ from torchvision.utils import save_image
 import random as r
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import misc
+import imageio
 
 img_size = 64
 num_color = 3
@@ -46,14 +46,19 @@ def real_batch(size, show=False):
     random_batch = [r.randint(0, 3009) for _ in range(size)]
     image_batch = []
 
+    # Reads and preprocesses sampled images
     for number in random_batch:
-        image = misc.imread("data/{}/{}.jpg".format(dataset, number))
-        image = np.reshape(image, [num_color, img_size, img_size])
+        image = imageio.imread("data/{}/{}.jpg".format(dataset, number))
+        image = image / 255
+        image = image.astype('float32')
         image_batch.append(image)
 
-    numpy_images = np.asarray(image_batch)
-    images = torch.from_numpy(numpy_images).float().cuda()
+    # Putting images into torch format
+    numpy_images = np.reshape(image_batch, [size, 3, 64, 64])
+    # numpy_images = np.asarray(image_batch)
+    images = torch.from_numpy(numpy_images).float()
 
+    # Sampling labels for batch
     labels = [np.random.uniform(0.0, 0.1) for _ in range(size)]
 
     if show:
@@ -61,3 +66,7 @@ def real_batch(size, show=False):
         plt.imshow(image)
         plt.show()
     return images, torch.Tensor(labels)
+
+
+if __name__ == '__main__':
+    real_batch(5, True)

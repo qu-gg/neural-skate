@@ -1,4 +1,6 @@
 import argparse
+import os
+import matplotlib.pyplot as plt
 import torch.optim as optim
 from model.discriminator import *
 from model.generator import *
@@ -13,12 +15,20 @@ parser.add_argument('-r', '--results', action='store', type=int, default=0)
 args = parser.parse_args()
 
 BATCH_SIZE = args.batch
+PATH = "testing/results{}".format(args.results)
+
+# Creating paths if they do not exist
+paths = ["testing", PATH, "testing/checkpoints"]
+for path in paths:
+    if not os.path.exists(path):
+        os.mkdir(path)
 
 # Writing the hyperparameters to a file
-file = open("testing/results{}/hyperparameters.txt".format(args.results), "w")
+file = open(PATH + "hyperparameters.txt", "w")
 file.write("{}".format(args))
 file.close()
 
+# Utilizing GPU if available
 if torch.cuda.is_available() and args.gpu:
     torch.set_default_tensor_type('torch.cuda.FloatTensor')
 else:
@@ -123,7 +133,7 @@ def training(num_steps):
                 image = np.reshape(images[i], [img_size, img_size, num_color])
                 result = np.concatenate((result, image), axis=1)
                 result = np.concatenate((result, np.ones([img_size, img_size, num_color])), axis=1)
-            misc.imsave("testing/results{}/{}step.png".format(args.results, step), result)
+            imageio.imsave("testing/results{}/{}step.png".format(args.results, step), result)
 
             # Saving current loss images
             steps = [i for i in range(step + 1)]
