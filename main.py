@@ -126,12 +126,15 @@ def training(num_steps):
             print("Gen Loss on {}: {}".format(step, detach(gen_loss)))
 
             # Saving image
-            images = fake_images.detach().numpy()
+            fake_images, _ = fake_batch(gen, 5)
+            images = detach(fake_images)
             result = np.ones([img_size, img_size, num_color])
             for i in range(5):
-                numpy_images = np.swapaxes(images, 1, 2)
-                numpy_images = np.swapaxes(numpy_images, 2, 3)
-                result = np.concatenate((result, numpy_images), axis=1)
+                image = np.swapaxes(images[i], 0, 1)
+                image = np.swapaxes(image, 1, 2)
+                plt.imshow(image)
+                plt.show()
+                result = np.concatenate((result, image), axis=1)
                 result = np.concatenate((result, np.ones([img_size, img_size, num_color])), axis=1)
             imageio.imsave("testing/results{}/{}step.png".format(args.results, step), result)
 
