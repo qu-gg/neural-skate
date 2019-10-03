@@ -54,14 +54,18 @@ def real_batch(size, show=False):
         image_batch.append(image)
 
     # Putting images into torch format
-    numpy_images = np.reshape(image_batch, [size, 3, 64, 64])
+    numpy_images = np.swapaxes(image_batch, 2, 3)
+    numpy_images = np.swapaxes(numpy_images, 1, 2)
+
     images = torch.from_numpy(numpy_images).float()
 
     # Sampling labels for batch
     labels = [np.random.uniform(0.0, 0.1) for _ in range(size)]
 
     if show:
-        image = np.reshape(numpy_images[0], [img_size, img_size, num_color])
+        image = images[0].detach().numpy()
+        image = np.reshape(image, [img_size, img_size, num_color])
+        print(image)
         plt.imshow(image)
         plt.show()
 

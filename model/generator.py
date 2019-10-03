@@ -13,31 +13,27 @@ class Generator(nn.Module):
     """
     def __init__(self):
         super(Generator, self).__init__()
-        self.pad = nn.ReflectionPad2d(1)
         self.upsample = nn.Upsample(scale_factor=2, mode="nearest")
 
         self.conv1 = nn.Conv2d(100, 64, kernel_size=3, stride=1, padding=0)
         self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=0)
         self.conv3 = nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=0)
-        self.conv4 = nn.Conv2d(32, 3, kernel_size=3, stride=1, padding=0)
-
-        torch.nn.init.xavier_uniform(self.conv1.weight)
-        torch.nn.init.xavier_uniform(self.conv2.weight)
-        torch.nn.init.xavier_uniform(self.conv3.weight)
-        torch.nn.init.xavier_uniform(self.conv4.weight)
+        self.conv4 = nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=0)
+        self.conv5 = nn.Conv2d(32, 3, kernel_size=5, stride=1, padding=0)
 
     def forward(self, x):
-        print(x.shape)
         x = x.view(-1, 100, 4, 4)
-        x = self.conv1(self.pad(self.upsample(x)))
-        print(x.shape)
-        x = self.conv2(self.pad(self.upsample(x)))
-        print(x.shape)
-        x = self.conv3(self.pad(self.upsample(x)))
-        print(x.shape)
-        x = self.conv4(self.pad(self.upsample(x)))
-        print(x.shape)
-        return x
+        x = self.conv1(self.upsample(x))
+        # print(x.shape)
+        x = self.conv2(self.upsample(x))
+        # print(x.shape)
+        x = self.conv3(self.upsample(x))
+        # print(x.shape)
+        x = self.conv4(self.upsample(x))
+        # print(x.shape)
+        x = self.conv5(self.upsample(x))
+        # print(x.shape)
+        return torch.tanh(x)
 
 
 def fake_batch(gen, size, show=False):
@@ -56,9 +52,9 @@ def fake_batch(gen, size, show=False):
         images = images.detach().numpy()
 
         for i in range(len(images)):
-            image = np.reshape(images[i], [img_size, img_size, 3]).clip(0)
-            print(image)
-            plt.imshow(image)
+            numpy_images = np.swapaxes(images, 1, 2)
+            numpy_images = np.swapaxes(numpy_images, 2, 3)
+            plt.imshow(numpy_images[0])
             plt.show()
 
     return images, torch.Tensor(labels)
