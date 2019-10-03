@@ -48,9 +48,15 @@ def fake_batch(gen, size, show=False):
 
     if show:
         images = images.detach().numpy()
-        image = np.reshape(images[0], [img_size, img_size, 3])
-        print(image)
-        plt.imshow(image)
-        plt.show()
+
+        for i in range(len(images)):
+            image = np.reshape(images[i], [img_size, img_size, 3])
+            print(image)
+            plt.imshow(image)
+            plt.show()
 
     return images, torch.Tensor(labels)
+
+
+if __name__ == '__main__':
+    fake_batch(Generator(), 5, True)
