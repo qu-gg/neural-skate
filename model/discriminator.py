@@ -48,14 +48,13 @@ def real_batch(size, show=False):
 
     # Reads and preprocesses sampled images
     for number in random_batch:
-        image = imageio.imread("data/{}/{}.jpg".format(dataset, number))
+        image = imageio.imread("../data/{}/{}.jpg".format(dataset, number))
         image = image / 255
         image = image.astype('float32')
         image_batch.append(image)
 
     # Putting images into torch format
     numpy_images = np.reshape(image_batch, [size, 3, 64, 64])
-    # numpy_images = np.asarray(image_batch)
     images = torch.from_numpy(numpy_images).float()
 
     # Sampling labels for batch
@@ -65,6 +64,7 @@ def real_batch(size, show=False):
         image = np.reshape(numpy_images[0], [img_size, img_size, num_color])
         plt.imshow(image)
         plt.show()
+
     return images, torch.Tensor(labels)
 
 

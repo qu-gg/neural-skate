@@ -1,6 +1,5 @@
 import argparse
 import os
-import matplotlib.pyplot as plt
 import torch.optim as optim
 from model.discriminator import *
 from model.generator import *
