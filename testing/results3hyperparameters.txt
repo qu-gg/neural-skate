@@ -1,0 +1,1 @@
+Namespace(batch=16, dis=1, gen=3, gpu=True, results=3, steps=100000)

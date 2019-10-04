@@ -5,7 +5,7 @@ from model.discriminator import *
 from model.generator import *
 
 parser = argparse.ArgumentParser(description="Hyper-parameters for network.")
-parser.add_argument('-b', '--batch', action='store', type=int, default=32)
+parser.add_argument('-b', '--batch', action='store', type=int, default=16)
 parser.add_argument('-g', '--gpu', action='store', type=bool, default=True)
 parser.add_argument('-s', '--steps', action='store', type=int, default=5000)
 parser.add_argument('-n', '--gen', action='store', type=int, default=1)
@@ -38,10 +38,10 @@ dis = Discriminator()
 
 loss = nn.BCELoss()  # Loss function
 
-beta1 = 0.0
+beta1 = 0.5
 beta2 = 0.95
-gen_optim = optim.Adam(gen.parameters(), lr=.00005, betas=[beta1, beta2])  # Optimizers
-dis_optim = optim.Adam(dis.parameters(), lr=.00005, betas=[beta1, beta2])
+gen_optim = optim.Adam(gen.parameters(), lr=.0001, betas=[beta1, beta2])  # Optimizers
+dis_optim = optim.Adam(dis.parameters(), lr=.0001, betas=[beta1, beta2])
 
 
 def graph(num_iter, d_loss, g_loss):
@@ -55,7 +55,6 @@ def graph(num_iter, d_loss, g_loss):
     plt.plot(num_iter, g_loss, '-r', label='Gen Loss')
     plt.xlabel("Number of Iterations")
     plt.ylim([0.0, 5.0])
-    plt.legend(loc='upper right')
     plt.savefig("testing/results{}/graph_of_loss.png".format(args.results))
 
 
@@ -111,7 +110,7 @@ def training(num_steps):
             fake_images, fake_labels = fake_batch(gen, BATCH_SIZE)
 
             # Running fake images through discrim to get generator loss
-            gen_loss = loss(dis(fake_images), fake_labels)
+            gen_loss = -loss(dis(fake_images), fake_labels)
             gen_loss.backward()
             gen_optim.step()
 
@@ -125,15 +124,15 @@ def training(num_steps):
             print("Gen Loss on {}: {}".format(step, detach(gen_loss)))
 
             # Saving image
-            fake_images, _ = fake_batch(gen, 5)
+            fake_images, _ = fake_batch(gen, 1)
             images = detach(fake_images)
-            result = np.ones([img_size, img_size, num_color])
-            for i in range(5):
+            # result = np.ones([img_size, img_size, num_color])
+            for i in range(1):
                 image = np.swapaxes(images[i], 0, 1)
                 image = np.swapaxes(image, 1, 2)
-                result = np.concatenate((result, image), axis=1)
-                result = np.concatenate((result, np.ones([img_size, img_size, num_color])), axis=1)
-            imageio.imsave("testing/results{}/{}step.png".format(args.results, step), result)
+                # result = np.concatenate((result, image), axis=1)
+                # result = np.concatenate((result, np.ones([img_size, img_size, num_color])), axis=1)
+            imageio.imsave("testing/results{}/{}step.png".format(args.results, step), image)
 
             # Saving current loss images
             steps = [i for i in range(step + 1)]
