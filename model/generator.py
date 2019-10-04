@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as f
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -23,15 +24,15 @@ class Generator(nn.Module):
 
     def forward(self, x):
         x = x.view(-1, 100, 4, 4)
-        x = self.conv1(self.upsample(x))
+        x = f.leaky_relu(self.conv1(self.upsample(x)))
         # print(x.shape)
-        x = self.conv2(self.upsample(x))
+        x = f.leaky_relu(self.conv2(self.upsample(x)))
         # print(x.shape)
-        x = self.conv3(self.upsample(x))
+        x = f.leaky_relu(self.conv3(self.upsample(x)))
         # print(x.shape)
-        x = self.conv4(self.upsample(x))
+        x = f.leaky_relu(self.conv4(self.upsample(x)))
         # print(x.shape)
-        x = self.conv5(self.upsample(x))
+        x = f.leaky_relu(self.conv5(self.upsample(x)))
         # print(x.shape)
         return torch.tanh(x)
 

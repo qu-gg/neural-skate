@@ -38,10 +38,10 @@ dis = Discriminator()
 
 loss = nn.BCELoss()  # Loss function
 
-beta1 = 0.5
+beta1 = 0.0
 beta2 = 0.95
-gen_optim = optim.Adam(gen.parameters(), lr=.0001, betas=[beta1, beta2])  # Optimizers
-dis_optim = optim.Adam(dis.parameters(), lr=.0001, betas=[beta1, beta2])
+gen_optim = optim.Adam(gen.parameters(), lr=.00005, betas=[beta1, beta2])  # Optimizers
+dis_optim = optim.Adam(dis.parameters(), lr=.00005, betas=[beta1, beta2])
 
 
 def graph(num_iter, d_loss, g_loss):
@@ -99,15 +99,14 @@ def training(num_steps):
             # Testing discriminator on real and fake images
             dis_real = loss(dis(images), labels)
             dis_fake = loss(dis(fake_images.detach()), fake_labels)
+            dis_real.backward(), dis_fake.backward()
 
             dis_loss = (dis_real + dis_fake)
-            dis_loss.backward()
             dis_optim.step()
 
         for _ in range(args.gen):
             """ Generator Training """
             gen.zero_grad()
-            dis.zero_grad()
 
             fake_images, fake_labels = fake_batch(gen, BATCH_SIZE)
 
@@ -132,8 +131,6 @@ def training(num_steps):
             for i in range(5):
                 image = np.swapaxes(images[i], 0, 1)
                 image = np.swapaxes(image, 1, 2)
-                plt.imshow(image)
-                plt.show()
                 result = np.concatenate((result, image), axis=1)
                 result = np.concatenate((result, np.ones([img_size, img_size, num_color])), axis=1)
             imageio.imsave("testing/results{}/{}step.png".format(args.results, step), result)
