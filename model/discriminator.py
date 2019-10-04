@@ -78,7 +78,7 @@ def real_batch(size, show=False):
     # Putting images into torch format
     numpy_images = np.swapaxes(image_batch, 2, 3)
     numpy_images = np.swapaxes(numpy_images, 1, 2)
-    images = torch.from_numpy(numpy_images).float()
+    images = torch.from_numpy(numpy_images).float().cuda()
 
     # Sampling labels for batch
     labels = [np.random.uniform(0.0, 0.1) for _ in range(size)]
