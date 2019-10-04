@@ -9,6 +9,7 @@ import imageio
 img_size = 64
 num_color = 3
 dataset = "64-set"
+cur_idx = 0
 
 
 class Discriminator(nn.Module):
@@ -35,6 +36,28 @@ class Discriminator(nn.Module):
         return torch.sigmoid(self.final(x))
 
 
+def get_indices(size):
+    """
+    Gets the indices of the next batch of training data, wrapping around if over the end of the data set
+    :param size: number of indices to grab
+    :return: list of indices
+    """
+    global cur_idx
+
+    indices = []
+    for idx in range(cur_idx, cur_idx + size):
+        if idx + size > 3009:
+            indices.append(idx % 3009)
+        else:
+            indices.append(idx)
+
+    cur_idx += size
+    if cur_idx > 3009:
+        cur_idx %= 3009
+
+    return indices
+
+
 def real_batch(size, show=False):
     """
     Handles grabbing a random batch of images from the dataset
@@ -42,7 +65,7 @@ def real_batch(size, show=False):
     :param show: whether to display the first pulled image
     :return: Torch Tensor of image arrays
     """
-    random_batch = [r.randint(0, 3009) for _ in range(size)]
+    random_batch = get_indices(size)
     image_batch = []
 
     # Reads and preprocesses sampled images
@@ -71,4 +94,6 @@ def real_batch(size, show=False):
 
 
 if __name__ == '__main__':
-    real_batch(5, True)
+    for _ in range(150):
+        get_indices(32)
+    real_batch(5, False)
