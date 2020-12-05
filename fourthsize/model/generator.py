@@ -18,24 +18,23 @@ class Generator(nn.Module):
         
         self.fc    = nn.Linear(100, 1600)
         self.conv1 = nn.ConvTranspose2d(100, 64, kernel_size=4, stride=2, padding=1)
-        self.conv2 = nn.ConvTranspose2d(64, 64, kernel_size=3, stride=2, padding=1)
-        self.conv3 = nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1)
-        self.conv4 = nn.ConvTranspose2d(32, 32, kernel_size=3, stride=2, padding=1)
-        self.conv5 = nn.ConvTranspose2d(32, 3, kernel_size=5, stride=2, padding=1)
+        self.conv2 = nn.ConvTranspose2d(64, 64, kernel_size=4, stride=2, padding=1)
+        self.conv3 = nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1)
+        self.conv4 = nn.ConvTranspose2d(32, 3, kernel_size=4, stride=2, padding=1)
+
+        # Next batch to add after some time
 
     def forward(self, x):
         x = self.fc(x)
         x = x.view(-1, 100, 4, 4)
-        x = f.leaky_relu(self.conv1(x))
-        print(x.shape)
-        x = f.leaky_relu(self.conv2(x))
-        print(x.shape)
-        x = f.leaky_relu(self.conv3(x))
-        print(x.shape)
-        x = f.leaky_relu(self.conv4(x))
-        print(x.shape)
-        x = torch.tanh(self.conv5(x))
-        print(x.shape)
+        x = f.relu(self.conv1(x))
+        # print(x.shape)
+        x = f.relu(self.conv2(x))
+        # print(x.shape)
+        x = f.relu(self.conv3(x))
+        # print(x.shape)
+        x = torch.tanh(self.conv4(x))
+        # print(x)
         return x
 
 
@@ -49,7 +48,7 @@ def fake_batch(gen, size, show=False):
     """
     noise = torch.Tensor(np.random.uniform(-1.0, 1.0, (size, 100)))
     images = gen(noise)
-    labels = [np.random.uniform(0.9, 1.0) for _ in range(size)]
+    labels = [1 for _ in range(size)]
 
     if show:
         images = images.detach().numpy()
@@ -60,7 +59,8 @@ def fake_batch(gen, size, show=False):
             plt.imshow(numpy_images[0])
             plt.show()
 
-    return images, torch.Tensor(labels)
+    labels = torch.Tensor(labels).view([-1, 1])
+    return images, labels
 
 
 if __name__ == '__main__':

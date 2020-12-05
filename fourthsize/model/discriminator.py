@@ -27,13 +27,16 @@ class Discriminator(nn.Module):
         self.final = nn.Linear(16, 1)
 
     def forward(self, x):
-        x = f.leaky_relu(self.conv1(x))
-        x = f.leaky_relu(self.conv2(x))
-        x = f.leaky_relu(self.conv3(x))
-        x = f.leaky_relu(self.conv4(x))
-        x = f.leaky_relu(self.conv5(x))
+        x = f.leaky_relu(self.conv1(x), 0.2)
+        x = f.leaky_relu(self.conv2(x), 0.2)
+        x = f.leaky_relu(self.conv3(x), 0.2)
+        x = f.leaky_relu(self.conv4(x), 0.2)
+        x = f.leaky_relu(self.conv5(x), 0.2)
         x = x.view(-1, 16)
-        return torch.sigmoid(self.final(x))
+
+        x = torch.sigmoid(self.final(x))
+        # print("Output of discrim: ", x.shape)
+        return x
 
 
 def get_indices(size):
@@ -90,7 +93,8 @@ def real_batch(size, show=False):
         plt.imshow(image)
         plt.show()
 
-    return images, torch.Tensor(labels)
+    labels = torch.Tensor(labels).view([-1, 1])
+    return images, labels
 
 
 if __name__ == '__main__':
